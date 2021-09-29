@@ -1,0 +1,52 @@
+{
+  "name": "geosub",
+  "version": "1.0.0",
+  "description": "Tool for partial downloading of geospatial datasets",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha",
+    "codecov": "curl -s https://codecov.io/bash | bash",
+    "c8": "npx c8 node --experimental-specifier-resolution=node --no-warnings test/test.js",
+    "lcov": "npx c8 report --reporter=text-lcov > coverage/tests.lcov",
+    "preversion": "npm run test",
+    "version": "git add package.json",
+    "postversion": "git push && git push --tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mmomtchev/aws-geo-sub.git"
+  },
+  "bin": {
+    "geosub": "./cli.js"
+  },
+  "keywords": [
+    "aws",
+    "g2sub",
+    "g2subset",
+    "gdal",
+    "noaa",
+    "gfs",
+    "geospatial",
+    "gdal-async"
+  ],
+  "author": "Momtchil Momtchev <momtchil@momtchev.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mmomtchev/aws-geo-sub/issues"
+  },
+  "homepage": "https://github.com/mmomtchev/aws-geo-sub#readme",
+  "dependencies": {
+    "async-await-queue": "^1.2.0",
+    "commander": "^8.2.0",
+    "gdal-async": "^3.4.0-alpha.0"
+  },
+  "devDependencies": {
+    "c8": "^7.9.0",
+    "chai": "^4.3.4",
+    "chai-as-promised": "^7.1.1",
+    "codecov": "^3.8.3",
+    "eslint": "^7.32.0",
+    "mocha": "^9.1.2",
+    "prettier": "^2.4.1"
+  }
+}

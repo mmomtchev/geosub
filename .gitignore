@@ -1,0 +1,4 @@
+node_modules
+*.gr*b2
+*.nc
+!test/data
