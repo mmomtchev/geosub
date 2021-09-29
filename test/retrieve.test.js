@@ -7,14 +7,6 @@ const gdal = require('gdal-async');
 
 const retrieve = require('..');
 
-const date = new Date(Date.now() - 24 * 3600 * 1000);
-const _grib2 = `/vsis3/noaa-gfs-bdp-pds/gfs.${date.getFullYear()}${(date.getMonth() + 1)
-    .toString()
-    .padStart(2, '0')}${date
-    .getDate()
-    .toString()
-    .padStart(2, '0')}/06/atmos/gfs.t06z.pgrb2.0p25.f010`;
-
 const grib2 = __dirname + '/data/gfs.t06z.pgrb2.0p25.f010';
 
 const grib2Temp = '/vsimem/temp.grb2';

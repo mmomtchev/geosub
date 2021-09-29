@@ -13,7 +13,7 @@ function matchSelector(selector, band) {
 
         const metaData = band.getMetadata();
         for (const selKey of Object.keys(selector.metaData)) {
-            selData = selector.metaData[selKey];
+            const selData = selector.metaData[selKey];
             if (metaData[selKey] === undefined) return false;
             if (!metaData[selKey].match(selData)) return false;
         }

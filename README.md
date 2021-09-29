@@ -25,7 +25,7 @@ geosub -b 1,TMP -w -8,53,12,38 /vsis3/noaa-gfs-bdp-pds/gfs.20210918/06/atmos/gfs
 geosub -b 1,2 NETCDF:"/vsis3/noaa-gfs-bdp-pds/gfs.20210918/06/atmos/gfs.t06z.atmf012.nc":tmp sigma_temperatures.nc
 ```
 
-NOAA's NetCDF have invalid georeferencing and subwindows cannot be extracted currently.
+NOAA's NetCDF have invalid georeferencing and subwindows cannot currently be extracted.
 
 ## From a Node.js application
 
