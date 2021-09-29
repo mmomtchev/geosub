@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha",
     "codecov": "curl -s https://codecov.io/bash | bash",
-    "c8": "npx c8 node --experimental-specifier-resolution=node --no-warnings test/test.js",
+    "c8": "npx c8 node --experimental-specifier-resolution=node --no-warnings node_modules/mocha/lib/cli/cli.js",
     "lcov": "npx c8 report --reporter=text-lcov > coverage/tests.lcov",
     "preversion": "npm run test",
     "version": "git add package.json",
