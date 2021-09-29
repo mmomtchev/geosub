@@ -30,9 +30,13 @@ geosub -b 1,TMP -w -8,53,12,38 /vsis3/noaa-gfs-bdp-pds/gfs.20210918/06/atmos/gfs
 geosub -b 1,2 NETCDF:"/vsis3/noaa-gfs-bdp-pds/gfs.20210918/06/atmos/gfs.t06z.atmf012.nc":tmp sigma_temperatures.nc
 ```
 
+Bands can be selected either by id or by a substring of the description.
+
 NOAA's NetCDF have invalid georeferencing and currently subwindows cannot be extracted.
 
 ## From a Node.js application
+
+Bands can be selected either by id, by a substring of the description, by RegExp of the description, by metadata selectors or by any combination of these.
 
 ```js
 const retrieve = require('geosub');
