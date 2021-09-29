@@ -21,7 +21,7 @@ npm i geosub
 
 ## From the command line
 
-(you should probably install it as a global package in this)
+*(you should probably install it as a global package in this case)*
 
 ```bash
 # Download band #1 and all the temperature bands over France from the GFS GRIBs
@@ -30,7 +30,7 @@ geosub -b 1,TMP -w -8,53,12,38 /vsis3/noaa-gfs-bdp-pds/gfs.20210918/06/atmos/gfs
 geosub -b 1,2 NETCDF:"/vsis3/noaa-gfs-bdp-pds/gfs.20210918/06/atmos/gfs.t06z.atmf012.nc":tmp sigma_temperatures.nc
 ```
 
-NOAA's NetCDF have invalid georeferencing and subwindows cannot currently be extracted.
+NOAA's NetCDF have invalid georeferencing and currently subwindows cannot be extracted.
 
 ## From a Node.js application
 
@@ -38,7 +38,7 @@ NOAA's NetCDF have invalid georeferencing and subwindows cannot currently be ext
 const retrieve = require('geosub');
 await retrieve({
     url: '/vsis3/noaa-gfs-bdp-pds/gfs.20210918/06/atmos/gfs.t06z.pgrb2.0p25.f010',
-    bands: [{id: 1}, {description: 'TMP'}],
+    bands: [{id: 1}, {description: /TMP/}],
     bbox: [-8.0125, 53.0125, 12.0125, 37.9875],
     filename: 'france_temperature.06z.grb2'
 }).catch((e) => console.error(e));
