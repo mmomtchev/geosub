@@ -33,5 +33,7 @@ retrieve({
     })
     .catch((e) => {
         console.error(e.message);
+        console.log('Usage:');
+        console.log('geosub [-b band1,band2...] [-w left,top,right,bottom] [-v] [-q] url destination');
         process.exit(1);
     });
