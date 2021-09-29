@@ -1,5 +1,10 @@
 # geosub
 
+[![License: ISC](https://img.shields.io/github/license/mmomtchev/geosub)](https://github.com/mmomtchev/geosub/blob/master/LICENSE)
+[![npm version](https://img.shields.io/npm/v/geosub)](https://www.npmjs.com/package/geosub)
+[![Node.js CI](https://github.com/mmomtchev/geosub/actions/workflows/node.js.yml/badge.svg)](https://github.com/mmomtchev/geosub/actions/workflows/node.js.yml)
+[![codecov](https://codecov.io/gh/mmomtchev/geosub/branch/master/graph/badge.svg?token=VAgvGRNjjc)](https://codecov.io/gh/mmomtchev/geosub)
+
 `geosub` is a tool for partial downloads of geospatial raster datasets from remote data sources
 
 Its main use case is downloading NOAA GFS GRIBs from Amazon S3 but it should be compatible with any raster dataset format supported by GDAL on any remote file system supported by GDAL
