@@ -32,8 +32,9 @@ geosub -b 1,2 NETCDF:"/vsis3/noaa-gfs-bdp-pds/gfs.20210918/06/atmos/gfs.t06z.atm
 
 Bands can be selected either by id or by a substring of the description.
 
-NOAA's GRIB2s use 0-360 longitudes all aspects of which are handled correctly by GDAL >= 3.4.0 as per the GRIB2 specification.
-NOAA's NetCDF also use 0-360 longitudes, which is allowed by the NetCDF specifications, but these being atypical, they are not yet fully supported and subwindows cannot be extracted - NetCDF bands are to be downloaded as a whole.
+NOAA's *GRIB2s* use 0-360 longitudes all aspects of which are handled correctly by GDAL >= 3.4.0 as per the *GRIB2* specification.
+
+NOAA's *NetCDFs* also use 0-360 longitudes, which is allowed by the *NetCDF* specifications, but it is excluded by the NetCDF Climate and Forecast Metadata Conventions. Without being completely invalid, these files are not standards-compliant either and they are not yet fully supported which means that subwindows cannot be extracted - NetCDF bands are to be downloaded as a whole. Maybe a future version will allow it - especially since *NetCDF* allows for a more efficient reading of a subwindow without downloading the whole band.
 
 ## From a Node.js application
 
@@ -71,6 +72,20 @@ const ndArray = gdal.open('/vsimem/france_temperature.06z.grb2')
 
 # Performance
 
-The GRIB2 format is very ill-suited for cloud operations - there is no central band index and it requires that the whole file is parsed before any bands can be extracted. In order to allow for partial downloads, NOAA publishes a sidecar index file for every GRIB2 with a `.idx` extension. This file allows for orders of magnitude faster data extraction as long as only the data contained in it is used - that is the band description. Should you require reading the metadata, in the case of the GRIB2 format, you will probably be better of with downloading the whole file and extracting the needed bands locally. NetCDF does not suffer from this problem.
+First of all, the entire target dataset (that is the file you are writing) must fit in memory - this is a limitation that is very unlikely to be lifted in a future version.
 
-Also, the entire target dataset (that is the file you are writing) must fit in memory.
+## Selecting individual bands
+
+The *GRIB2* format is very ill-suited for cloud operations - there is no central band index and it requires that the whole file is parsed before any bands can be extracted. In order to allow for partial downloads, NOAA publishes a sidecar index file for every *GRIB2* with a `.idx` extension. This file allows for orders of magnitude faster data extraction as long as only the data contained in it is used - ***that is the band description***. Should you require reading the metadata, in the case of the *GRIB2* format, you will probably be better of with downloading the whole file and extracting the needed bands locally. When using only numerical ids or the description field, only the small sidecar file, the first band and the requested bands will be transferred.
+
+
+*NetCDF* does not suffer from this problem and individual bands are always transferred as individual bands.
+## Selecting subwindows
+
+Currently when selecting a subwindow, the whole band is transferred, but only part of it is written.
+
+In the case of the *GRIB2* format partial downloads of a single band, without being completely impossible, are difficult to implement and depend on the type of the compression used.
+
+The *NetCDF* format makes it much easier to implement partial transfers, but the georeferencing that NOAA uses is not compatible with the current version.
+
+Both of those limitations might be lifted in a future release.
