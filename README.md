@@ -32,7 +32,8 @@ geosub -b 1,2 NETCDF:"/vsis3/noaa-gfs-bdp-pds/gfs.20210918/06/atmos/gfs.t06z.atm
 
 Bands can be selected either by id or by a substring of the description.
 
-NOAA's NetCDF have invalid georeferencing and currently subwindows cannot be extracted.
+NOAA's GRIB2s use 0-360 longitudes all aspects of which are handled correctly by GDAL >= 3.4.0 as per the GRIB2 specification.
+NOAA's NetCDF also use 0-360 longitudes, which is allowed by the NetCDF specifications, but these being atypical, they are not yet fully supported and subwindows cannot be extracted - NetCDF bands are to be downloaded as a whole.
 
 ## From a Node.js application
 
