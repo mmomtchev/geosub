@@ -1,5 +1,6 @@
 const chaiAsPromised = require('chai-as-promised');
 const chai = require('chai');
+const path = require('path');
 chai.use(chaiAsPromised);
 const assert = chai.assert;
 
@@ -7,7 +8,7 @@ const gdal = require('gdal-async');
 
 const retrieve = require('..');
 
-const grib2 = __dirname + '/data/gfs.t06z.pgrb2.0p25.f010';
+const grib2 = path.resolve([__dirname, 'data', 'gfs.t06z.pgrb2.0p25.f010']);
 
 const grib2Temp = '/vsimem/temp.grb2';
 

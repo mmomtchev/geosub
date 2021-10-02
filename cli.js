@@ -15,7 +15,13 @@ program
 
 const opts = program.opts();
 const bands = opts.b
-    ? opts.b.split(',').map((band) => (isNaN(band) ? {description: band} : {id: +band}))
+    ? opts.b.split(',').map((band) => {
+        if (!isNaN(band))
+            return {id: +band};
+        if (band.startsWith('/') && band.endsWith('/'))
+            return {description: new RegExp(band.substring(0, band.length - 1).substring(1))};
+        return {description: band};
+    })
     : [];
 const bbox = opts.w ? opts.w.split(',').map((coord) => +coord) : undefined;
 const url = program.args[0];

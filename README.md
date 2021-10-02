@@ -27,6 +27,9 @@ npm i geosub
 # Download band #1 and all the temperature bands over France from the GFS GRIBs
 $ geosub -b 1,TMP -w -8,53,12,38 /vsis3/noaa-gfs-bdp-pds/gfs.20210918/06/atmos/gfs.t06z.pgrb2.0p25.f010 france_temperature.06z.grb2
 
+# Use RegExp to select all 'TMP' but not 'ICETMP' and all PRMSL
+$ geosub -b '/^TMP/,PRMSL' -w -8,53,12,38 /vsis3/noaa-gfs-bdp-pds/gfs.20210918/06/atmos/gfs.t06z.pgrb2.0p25.f010 france_temperature.06z.grb2
+
 # Download two temperature bands from the Sigma Atmospheric Model in NetCDF format
 # this works only on Linux and (depending on your distribution) may require setting the sysctl vm.unprivileged_userfaultfd=1
 $ geosub -b 1,2 NETCDF:"/vsis3/noaa-gfs-bdp-pds/gfs.20210918/06/atmos/gfs.t06z.atmf012.nc":tmp sigma_temperatures.nc
