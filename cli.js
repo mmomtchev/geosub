@@ -22,7 +22,7 @@ const bands = opts.b
             return {description: new RegExp(band.substring(0, band.length - 1).substring(1))};
         return {description: band};
     })
-    : [];
+    : undefined;
 const bbox = opts.w ? opts.w.split(',').map((coord) => +coord) : undefined;
 const url = program.args[0];
 const filename = program.args[1];
