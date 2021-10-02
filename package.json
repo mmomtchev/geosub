@@ -39,7 +39,7 @@
   "dependencies": {
     "async-await-queue": "^1.2.0",
     "commander": "^8.2.0",
-    "gdal-async": "^3.4.0-alpha.0"
+    "gdal-async": "^3.4.0-alpha.1"
   },
   "devDependencies": {
     "c8": "^7.9.0",

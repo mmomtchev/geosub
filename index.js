@@ -68,6 +68,7 @@ module.exports = async function retrieve(opts) {
     const srs = await source.srsAsync;
     const geoTransform = await source.geoTransformAsync;
     const size = await source.rasterSizeAsync;
+    const md = await source.getMetadataAsync();
 
     // Compute window
     let ul, lr, width, height;
@@ -107,6 +108,7 @@ module.exports = async function retrieve(opts) {
         targetGeoTransform[5] = geoTransform[5];
         temp.geoTransform = targetGeoTransform;
     }
+    if (md) temp.setMetadataAsync(md);
 
     // Create destination bands
     for (const b of bands)
@@ -130,11 +132,15 @@ module.exports = async function retrieve(opts) {
                 .then((band) => {
                     verbose(`downloading band ${inBandId}: ${band.description}`);
                     return Promise.all([
+                        band.getMetadataAsync(),
                         band.pixels.readAsync(ul.x, ul.y, width, height),
                         temp.bands.getAsync(outBandId)
                     ]);
                 })
-                .then(([data, band]) => band.pixels.writeAsync(0, 0, width, height, data))
+                .then(([md, data, band]) => Promise.all([
+                    band.setMetadataAsync(md),
+                    band.pixels.writeAsync(0, 0, width, height, data),
+                ]))
         );
     }
     await queue.flush();

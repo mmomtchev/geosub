@@ -29,6 +29,7 @@ function validate(file, bands, bbox, size) {
     ];
     assert.deepEqual(dsBbox, bbox);
     assert.deepEqual(dsSize, size);
+    assert.include(ds.bands.get(1).getMetadata().GRIB_IDS, 'US-NCEP');
     ds.close();
 }
 
@@ -137,5 +138,8 @@ describe('geosub CLI', () => {
         execSync(`node cli.js -b 10 -w -8.0125,53.0125,12.0125,37.9875 ${grib2} ${grib2Temp}`);
         validate(grib2Temp, 1, [-15, 60.125, 15, 30.125], {x: 3, y: 3});
         fs.unlinkSync(grib2Temp);
+    });
+    it('should exit with an error when there is one', () => {
+        assert.throws(() => execSync(`node cli.js`));
     });
 });
