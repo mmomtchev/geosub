@@ -16,7 +16,6 @@ const grib2Mem = '/vsimem/temp.grb2';
 const grib2Temp = `tmp${process.pid}.grb2`;
 
 function validate(file, bands, bbox, size) {
-    console.log('checking', file)
     const ds = gdal.open(file);
     assert.equal(ds.bands.count(), bands);
     const dsGeo = ds.geoTransform;
