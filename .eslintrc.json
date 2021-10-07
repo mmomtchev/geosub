@@ -12,6 +12,9 @@
     "mocha",
     "prefer-arrow"
   ],
+  "rules": {
+    "mocha/no-exclusive-tests": "error"
+  },
   "parserOptions": {
     "ecmaVersion": 2017
   }
