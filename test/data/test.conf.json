@@ -1,0 +1,21 @@
+{
+    "bands": [
+        {
+            "description": "/PVL.+$/"
+        },
+        {
+            "id": 2
+        },
+        {
+            "metaData": {
+                "GRIB_ELEMENT": "PRMSL"
+            }
+        }
+    ],
+    "bbox": [
+        -8.0125,
+        53.0125,
+        12.0125,
+        37.9875
+    ]
+}

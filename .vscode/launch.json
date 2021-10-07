@@ -13,7 +13,7 @@
         {
             "type": "pwa-node",
             "request": "launch",
-            "name": "Launch CLI",
+            "name": "Launch CLI / GRIB",
             "skipFiles": [
                 "<node_internals>/**"
             ],
@@ -25,6 +25,23 @@
                 "-8,53,12,38",
                 "/vsis3/noaa-gfs-bdp-pds/gfs.20210918/06/atmos/gfs.t06z.pgrb2.0p25.f010",
                 "france_temperature.06z.grb2"
+            ]
+        },
+        {
+            "type": "pwa-node",
+            "request": "launch",
+            "name": "Launch CLI / NetCDF",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/cli.js",
+            "args": [
+                "-b",
+                "1,2",
+                "-w",
+                "170,50,190,30",
+                "NETCDF:/vsis3/noaa-gfs-bdp-pds/gfs.20210918/06/atmos/gfs.t06z.atmf012.nc:tmp",
+                "france_sigma.nc"
             ]
         }
     ]

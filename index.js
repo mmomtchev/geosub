@@ -78,9 +78,16 @@ module.exports = async function retrieve(opts) {
     let ul, lr, width, height;
     if (opts.bbox) {
         const bbox = opts.bbox;
-        const xform = new gdal.CoordinateTransformation(WGS84, source);
-        ul = xform.transformPoint(lon360to180(bbox[0]), lon360to180(bbox[1]));
-        lr = xform.transformPoint(lon360to180(bbox[2]), lon360to180(bbox[3]));
+        try {
+            const xform = new gdal.CoordinateTransformation(WGS84, source);
+            ul = xform.transformPoint(lon360to180(bbox[0]), lon360to180(bbox[1]));
+            lr = xform.transformPoint(lon360to180(bbox[2]), lon360to180(bbox[3]));
+        } catch (e) {
+            throw new Error('No valid georeferencing found, '+ 
+                'if you are retrieving a NetCDF file, ' +
+                'you must specify the URL of a subdataset, not the master dataset'
+            );
+        }
         ul.x = Math.floor(ul.x);
         ul.y = Math.floor(ul.y);
         lr.x = Math.ceil(lr.x);

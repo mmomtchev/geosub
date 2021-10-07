@@ -35,7 +35,22 @@ $ geosub -b '/^TMP/,PRMSL' -w -8,53,12,38 /vsis3/noaa-gfs-bdp-pds/gfs.20210918/0
 $ geosub -b 1,2 NETCDF:"/vsis3/noaa-gfs-bdp-pds/gfs.20210918/06/atmos/gfs.t06z.atmf012.nc":tmp sigma_temperatures.nc
 ```
 
-Bands can be selected either by id or by a substring of the description.
+### With a JSON configuration file
+```json
+{
+    "bands": [ 
+        { "description": "/PVL.+$/" },
+        { "id": 2 },
+        { "metaData": { "GRIB_ELEMENT": "PRMSL" } }
+    ],
+    "bbox": [ -8.0125, 53.0125, 12.0125, 37.9875 ]
+}
+```
+```bash
+$ geosub -r conf.json /vsis3/noaa-gfs-bdp-pds/gfs.20210918/06/atmos/gfs.t06z.pgrb2.0p25.f010 geosub.06z.grb2
+```
+
+Bands can be selected either by id, by a substring of the description or by RegExp by enclosing the string in `//`.
 
 ## From a Node.js application
 
