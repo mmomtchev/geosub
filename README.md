@@ -93,7 +93,7 @@ The entire target dataset (that is the file you are writing) must fit in memory 
 
 ## Extracting individual bands
 
-The *GRIB2* format is very ill-suited for cloud operations - there is no central band index and it requires that the whole file is parsed before any bands can be extracted. In order to allow for partial downloads, NOAA publishes a sidecar index file for every *GRIB2* with a `.idx` extension. This file allows for orders of magnitude faster data extraction as long as only the data contained in it is used - ***that is the band description***. Should you require reading the metadata, in the case of the *GRIB2* format, you will probably be better of with downloading the whole file and extracting the needed bands locally. When using only numerical ids or the description field, only the small sidecar file, the first band and the requested bands will be transferred.
+The *GRIB2* format is very ill-suited for cloud operations - there is no central band index and it requires that the whole file is parsed before any bands can be extracted. In order to allow for partial downloads, NOAA publishes a sidecar index file for every *GRIB2* with a `.idx` extension. This file allows for orders of magnitude faster data extraction as long as only the data contained in it is used - ***that is the band description***. Should you require reading the metadata, in the case of the *GRIB2* format, you will probably be better off with downloading the whole file and extracting the needed bands locally. When using only numerical ids or the description field, only the small sidecar file, the first band and the requested bands will be transferred.
 
 *NetCDF* does not suffer from this problem and allows reading the band metadata without fully transferring it.
 
