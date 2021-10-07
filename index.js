@@ -2,6 +2,10 @@ const gdal = require('gdal-async');
 const WGS84 = gdal.SpatialReference.fromEPSG(4326);
 const Queue = require('async-await-queue');
 
+function lon360to180(lon) {
+    return (((lon + 180) % 360) + 360) % 360 - 180;
+}
+
 function matchSelector(selector, band) {
     try {
         if (selector.id !== undefined && selector.id !== band.id) return false;
@@ -75,14 +79,16 @@ module.exports = async function retrieve(opts) {
     if (opts.bbox) {
         const bbox = opts.bbox;
         const xform = new gdal.CoordinateTransformation(WGS84, source);
-        ul = xform.transformPoint(bbox[0], bbox[1]);
-        lr = xform.transformPoint(bbox[2], bbox[3]);
+        ul = xform.transformPoint(lon360to180(bbox[0]), lon360to180(bbox[1]));
+        lr = xform.transformPoint(lon360to180(bbox[2]), lon360to180(bbox[3]));
         ul.x = Math.floor(ul.x);
         ul.y = Math.floor(ul.y);
         lr.x = Math.ceil(lr.x);
         lr.y = Math.ceil(lr.y);
-        width = Math.min(Math.abs(lr.x - ul.x), size.x);
-        height = Math.min(Math.abs(lr.y - ul.y), size.y);
+        width = Math.min(lr.x - ul.x, size.x);
+        height = Math.min(lr.y - ul.y, size.y);
+        if (width < 0 || height < 0)
+            throw new Error('Partial datasets crossing the antimeridian are not supported');
     } else {
         ul = {x: 0, y: 0};
         lr = {x: size.x - 1, y: size.y - 1};
@@ -139,7 +145,7 @@ module.exports = async function retrieve(opts) {
                 })
                 .then(([md, data, band]) => Promise.all([
                     band.setMetadataAsync(md),
-                    band.pixels.writeAsync(0, 0, width, height, data),
+                    band.pixels.writeAsync(0, 0, width, height, data)
                 ]))
         );
     }
