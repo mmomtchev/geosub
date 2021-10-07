@@ -94,7 +94,7 @@ describe('retrieve()', () => {
         });
     });
     describe('should retrieve partial windows', () => {
-        it('w/window', () => {
+        it('w/window w/180 longitudes crossing the PM', () => {
             return assert.isFulfilled(
                 retrieve({
                     url: grib2,
@@ -102,6 +102,36 @@ describe('retrieve()', () => {
                     bbox: [-8.0125, 53.0125, 12.0125, 37.9875],
                     filename: grib2Mem
                 }).then(() => validate(grib2Mem, 1, [-15, 60.125, 15, 30.125], {x: 3, y: 3}))
+            );
+        });
+        it('w/window w/360 longitudes crossing the PM', () => {
+            return assert.isFulfilled(
+                retrieve({
+                    url: grib2,
+                    bands: [{metaData: {GRIB_ELEMENT: 'TMP', GRIB_SHORT_NAME: '1-ISBL'}}],
+                    bbox: [351.9875, 53.0125, 12.0125, 37.9875],
+                    filename: grib2Mem,
+                }).then(() => validate(grib2Mem, 1, [-15, 60.125, 15, 30.125], {x: 3, y: 3}))
+            );
+        });
+        it('w/window w/180 longitudes crossing the AM', () => {
+            return assert.isRejected(
+                retrieve({
+                    url: grib2,
+                    bands: [{metaData: {GRIB_ELEMENT: 'TMP', GRIB_SHORT_NAME: '1-ISBL'}}],
+                    bbox: [170, 10, -170, -10],
+                    filename: grib2Mem,
+                }, /crossing the antimeridian/)
+            );
+        });
+        it('w/window w/360 longitudes crossing the AM', () => {
+            return assert.isRejected(
+                retrieve({
+                    url: grib2,
+                    bands: [{metaData: {GRIB_ELEMENT: 'TMP', GRIB_SHORT_NAME: '1-ISBL'}}],
+                    bbox: [170, 10, 190, -10],
+                    filename: grib2Mem,
+                }, /crossing the antimeridian/)
             );
         });
     });
