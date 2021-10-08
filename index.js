@@ -35,20 +35,31 @@ function matchAllSelectors(selectors, band) {
     return false;
 }
 
-/*
+/**
+ * A band selector
  * @typedef {object} bandSelector
  * @property {number} [id] select by id
  * @property {regexp|string} [description] description selectors
  * @property {object} [metaData] metaData selectors (must match all)
  */
 
-/*
+/**
+ * The options object for the retrieve method
+ * @typedef {object} geosubOptions
+ * @property {number} [id] select by id
+ * @property {regexp|string} [description] description selectors
+ * @property {object} [metaData] metaData selectors (must match all)
+ */
+
+/**
+ * The main entrypoint
  * @method retrieve
+ * @param {geosubOptions} opts options object
  * @param {string} opts.url url
  * @param {number[]} [opts.bbox] bounding box array: [ left, top, right, bottom ], default is everything
  * @param {bandSelector[]} [opts.bands] bands selectors, default is everything
  * @param {string} opts.filename target filename
- * @param {(string) => void} verbose function to accept verbose output
+ * @param {(string) => void} opts.verbose function to accept verbose output
  * @returns {Promise<void>}
  */
 module.exports = async function retrieve(opts) {
