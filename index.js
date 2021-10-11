@@ -1,6 +1,5 @@
 const gdal = require('gdal-async');
 const WGS84 = gdal.SpatialReference.fromEPSG(4326);
-const Queue = require('async-await-queue');
 
 function lon360to180(lon) {
     return (((lon + 180) % 360) + 360) % 360 - 180;
@@ -33,6 +32,24 @@ function matchAllSelectors(selectors, band) {
 
     for (const selector of selectors) if (matchSelector(selector, band)) return true;
     return false;
+}
+
+function metaData2XML(md) {
+    let xml = '<Metadata>';
+    for (const key of Object.keys(md)) xml += `<MDI key="${key}">${md[key]}</MDI>`;
+    xml += '</Metadata>';
+    return xml;
+}
+
+async function band2XML(filename, i, band, src, dst, width, height) {
+    let vrtXML = '\t\t<SimpleSource>\n';
+    vrtXML += `\t\t\t<SourceFilename>${filename}</SourceFilename>\n`;
+    vrtXML += `\t\t\t<Description>${band.description}</Description>\n`;
+    vrtXML += `\t\t\t<SourceBand>${band.id}</SourceBand>\n`;
+    vrtXML += `\t\t\t<SrcRect xOff="${src.x}" yOff="${src.y}" xSize="${width}" ySize="${height}" />\n`;
+    vrtXML += `\t\t\t<DstRect xOff="${dst.x}" yOff="${dst.y}" xSize="${width}" ySize="${height}" />\n`;
+    vrtXML += '\t\t</SimpleSource>\n';
+    return vrtXML;
 }
 
 /**
@@ -80,12 +97,8 @@ module.exports = async function retrieve(opts) {
         } dataset with ${await source.bands.countAsync()} bands`
     );
 
-    const srs = await source.srsAsync;
-    const geoTransform = await source.geoTransformAsync;
-    const size = await source.rasterSizeAsync;
-    const md = await source.getMetadataAsync();
-
     // Compute window
+    const size = await source.rasterSizeAsync;
     let ul, lr, width, height;
     if (opts.bbox) {
         const bbox = opts.bbox;
@@ -93,6 +106,8 @@ module.exports = async function retrieve(opts) {
             const xform = new gdal.CoordinateTransformation(WGS84, source);
             ul = xform.transformPoint(lon360to180(bbox[0]), lon360to180(bbox[1]));
             lr = xform.transformPoint(lon360to180(bbox[2]), lon360to180(bbox[3]));
+            if (ul.x < 0) ul.x += size.x;
+            if (lr.x < 0) lr.x += size.x;
         } catch (e) {
             throw new Error('No valid georeferencing found, '+ 
                 'if you are retrieving a NetCDF file, ' +
@@ -105,8 +120,7 @@ module.exports = async function retrieve(opts) {
         lr.y = Math.ceil(lr.y);
         width = Math.min(lr.x - ul.x, size.x);
         height = Math.min(lr.y - ul.y, size.y);
-        if (width < 0 || height < 0)
-            throw new Error('Partial datasets crossing the antimeridian are not supported');
+        if (width < 0) width += size.x;
     } else {
         ul = {x: 0, y: 0};
         lr = {x: size.x - 1, y: size.y - 1};
@@ -114,14 +128,15 @@ module.exports = async function retrieve(opts) {
         height = size.y;
     }
 
-    // Create an in-memory temporary dataset
+    // Create a temporary VRT dataset
     const bands = [];
     for (const b of source.bands) if (matchAllSelectors(opts.bands, b)) bands.push(b);
     if (!bands.length) throw new Error('No bands to download');
-    const temp = await gdal.openAsync('temp', 'w', 'MEM', width, height, 0, gdal.GDT_Byte);
 
-    // Set target SRS
-    if (srs) temp.srs = srs;
+    let vrtXML = `<VRTDataset rasterXSize="${width}" rasterYSize="${height}">\n\n`;
+    const srs = await source.srsAsync;
+    if (srs) vrtXML += `\t<SRS>${srs.toWKT()}</SRS>\n`;
+    const geoTransform = await source.geoTransformAsync;
     if (geoTransform) {
         const targetGeoTransform = [];
         targetGeoTransform[0] = geoTransform[0] + ul.x * geoTransform[1];
@@ -130,13 +145,34 @@ module.exports = async function retrieve(opts) {
         targetGeoTransform[3] = geoTransform[3] + ul.y * geoTransform[5];
         targetGeoTransform[4] = geoTransform[4];
         targetGeoTransform[5] = geoTransform[5];
-        temp.geoTransform = targetGeoTransform;
+        vrtXML += `\t<GeoTransform>${targetGeoTransform.join(',')}</GeoTransform>\n`;
     }
-    if (md) temp.setMetadataAsync(md);
+    const md = await source.getMetadataAsync();
+    if (Object.keys(md).length) vrtXML += '\t' + metaData2XML(md) + '\n';
 
-    // Create destination bands
-    for (const b of bands)
-        await temp.bands.createAsync((await source.bands.getAsync(b.id)).dataType);
+    for (const i in bands) {
+        const band = bands[i];
+        vrtXML += `\n\t<VRTRasterBand dataType="${band.dataType}" band="${+i+1}">\n`;
+        const md = await band.getMetadataAsync();
+        if (Object.keys(md).length) vrtXML += '\t\t' + metaData2XML(md) + '\n';
+
+        vrtXML += await band2XML(opts.url, +i+1, band,
+            ul,
+            {x: 0, y: 0}, 
+            Math.min(size.x - ul.x, width), height
+        );
+        if (ul.x + width > size.x)
+            vrtXML += await band2XML(opts.url, +i+1, band,
+                {x: 0, y: ul.y},
+                {x: ul.x + width - size.x, y: 0}, 
+                width - (size.x - ul.x), height
+            );
+        vrtXML += `\t</VRTRasterBand>\n`;
+    }
+    vrtXML += '\n</VRTDataset>\n';
+    verbose(vrtXML);
+    gdal.vsimem.set(Buffer.from(vrtXML), '/vsimem/remote.vrt');
+    const temp = await gdal.openAsync('/vsimem/remote.vrt');
 
     // Retrieve and copy data
     verbose(
@@ -144,38 +180,16 @@ module.exports = async function retrieve(opts) {
             .map((x) => x.id)
             .join(',')}`
     );
-    const queue = new Queue(16, 0);
-    for (const band in bands) {
-        const inBandId = bands[band].id;
-        const outBandId = +band + 1;
-        // This loop is parallelized, band access is sequential
-        // but reading and writing can happen on two CPU cores
-        queue.run(() =>
-            source.bands
-                .getAsync(inBandId)
-                .then((band) => {
-                    verbose(`downloading band ${inBandId}: ${band.description}`);
-                    return Promise.all([
-                        band.getMetadataAsync(),
-                        band.pixels.readAsync(ul.x, ul.y, width, height),
-                        temp.bands.getAsync(outBandId)
-                    ]);
-                })
-                .then(([md, data, band]) => Promise.all([
-                    band.setMetadataAsync(md),
-                    band.pixels.writeAsync(0, 0, width, height, data)
-                ]))
-        );
-    }
-    await queue.flush();
-    await temp.flushAsync();
 
     // Write output
-    const response = await source.driver.createCopyAsync(opts.filename, temp);
+    const response = await source.driver.createCopyAsync(opts.filename, temp, {}, false, (complete, msg) => {
+        verbose(`${Math.round(complete * 100)}% ${msg ? msg : ''}`)
+    }, undefined);
     await response.flushAsync();
     verbose(`wrote ${opts.filename}`);
 
-    source.close();
     temp.close();
+    gdal.vsimem.release('/vsimem/remote.vrt');
+    source.close();
     response.close();
 };

@@ -13,8 +13,12 @@ It is an AWS-compatible replacement for NOAA's [g2sub](https://nomads.ncep.noaa.
 
 # Installation
 
-```
+```sh
+# locally in the current project
 npm i geosub
+
+# globally as a system-wide accessible command
+sudo npm -g i geosub
 ```
 
 # Usage
@@ -88,27 +92,20 @@ const ndArray = gdal.open('/vsimem/france_temperature.06z.grb2')
 
 # Extracting data
 
-
-The entire target dataset (that is the file you are writing) must fit in memory - this is a limitation that is very unlikely to be lifted in a future version.
-
 ## Extracting individual bands
 
 The *GRIB2* format is very ill-suited for cloud operations - there is no central band index and it requires that the whole file is parsed before any bands can be extracted. In order to allow for partial downloads, NOAA publishes a sidecar index file for every *GRIB2* with a `.idx` extension. This file allows for orders of magnitude faster data extraction as long as only the data contained in it is used - ***that is the band description***. Should you require reading the metadata, in the case of the *GRIB2* format, you will probably be better off with downloading the whole file and extracting the needed bands locally. When using only numerical ids or the description field, only the small sidecar file, the first band and the requested bands will be transferred.
 
 *NetCDF* does not suffer from this problem and allows reading the band metadata without fully transferring it.
 
-## Extracting subwindows
+## Extracting subwindows and longitude conversions
 
-### GRIB
+`geosub` understands both `[-180,180]` and `[0-360]` longitudes and it will automatically convert between these.
 
-Currently when selecting a subwindow, the whole band is transferred, but only part of it is written.
+*GRIB2s* internally always use `[0-360]` longitudes, all aspects of which are handled correctly by GDAL >= 3.4.0 as per the *GRIB2* specification. Extracted subwindows can cross both the prime meridian and the antimeridian, but be aware that many other tools will fail when reading a partial *GRIB2* dataset that crosses the prime meridian as it left boundary will be greater than its right boundary.
 
-In the case of the *GRIB2* format partial downloads of a single band, without being completely impossible, are difficult to implement and depend on the type of the compression used.
+NOAA's *NetCDFs* also use `[0-360]` longitudes, which do not follow the *NetCDF Climate and Forecast Metadata Conventions*. Still, many tools will read them - in the case of GDAL, it will read the raster data but the georeferencing won't be fully functional. GDAL explicitly supports rewrapping such datasets around the antimeridian and converting them to `[-180,180]` which is the standard - [see this for a detailed explanation](https://gis.stackexchange.com/questions/37790/reprojecting-raster-from-0-360-to-180-180-with-cutting-180-meridian-using-gdalw). `geosub` supports extracting partial windows even if they cross the prime meridian or the antimeridian. When reading a `[0-360]` file, it will write a `[0-360]` file and when reading a `[-180,180]` file it will write a `[-180,180]` file.
 
-*GRIB2s* internally use `[0-360]` longitudes, all aspects of which are handled correctly by GDAL >= 3.4.0 as per the *GRIB2* specification. As GDAL internally uses [-180,180] longitudes, partial datasets cannot cross the antimeridian (yet). They can cross the prime meridian, but be aware that many other tools will fail when reading a partial *GRIB2* dataset that crosses the prime meridian.
+In the case of the *GRIB2* format partial downloads of a single band, without being completely impossible, are difficult to implement and depend on the type of the compression used. Currently when selecting a subwindow, the whole band is transferred, but only part of it is written.
 
-### NetCDF
-
-The *NetCDF* format makes it much easier to implement partial transfers, but the georeferencing that NOAA uses is not fully compatible with the current version.
-
-NOAA's *NetCDFs* also use `[0-360]` longitudes, which is supported by *NetCDF*, but does not follow the *NetCDF Climate and Forecast Metadata Conventions*. Without being completely invalid, these files are not standards-compliant either. Still, many tools will read them - in the case of GDAL, it will read the raster data but the georeferencing won't be fully functional. GDAL explicitly supports rewrapping such datasets around the antimeridian - [see this for a detailed explanation](https://gis.stackexchange.com/questions/37790/reprojecting-raster-from-0-360-to-180-180-with-cutting-180-meridian-using-gdalw). Extracting partial windows from *NetCDF* is possible only if the resulting dataset does not cross the prime meridian or the antimeridian.
+The *NetCDF* GDAL driver supports partial band transfers but it will still transfer more than the minimum possible - it will usually retrieve full lines but only for the requested rows.

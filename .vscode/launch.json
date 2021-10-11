@@ -22,7 +22,7 @@
                 "-b",
                 "1,TMP",
                 "-w",
-                "-8,53,12,38",
+                "179,10,181,-10",
                 "/vsis3/noaa-gfs-bdp-pds/gfs.20210918/06/atmos/gfs.t06z.pgrb2.0p25.f010",
                 "france_temperature.06z.grb2"
             ]

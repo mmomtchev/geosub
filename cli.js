@@ -71,8 +71,8 @@ retrieve({
         if (!opts.quiet) process.stdout.write('\n');
     })
     .catch((e) => {
-        console.error(e.message);
         if (!opts.q) {
+            console.error(e.message);
             console.log('Usage:');
             console.log(
                 'geosub [-b band1,band2...] [-w left,top,right,bottom] [-v] [-q] url destination'

@@ -94,23 +94,23 @@ describe('retrieve()', () => {
             );
         });
         it('w/window w/180 longitudes crossing the AM', () => {
-            return assert.isRejected(
+            return assert.isFulfilled(
                 retrieve({
                     url: grib2,
                     bands: [{metaData: {GRIB_ELEMENT: 'TMP', GRIB_SHORT_NAME: '1-ISBL'}}],
                     bbox: [170, 10, -170, -10],
-                    filename: grib2Mem,
-                }, /crossing the antimeridian/)
+                    filename: grib2Mem
+                }).then(() => validate(grib2Mem, 1, [165, 10.125, 195, -19.875], {x: 3, y: 3}))
             );
         });
         it('w/window w/360 longitudes crossing the AM', () => {
-            return assert.isRejected(
+            return assert.isFulfilled(
                 retrieve({
                     url: grib2,
                     bands: [{metaData: {GRIB_ELEMENT: 'TMP', GRIB_SHORT_NAME: '1-ISBL'}}],
                     bbox: [170, 10, 190, -10],
-                    filename: grib2Mem,
-                }, /crossing the antimeridian/)
+                    filename: grib2Mem
+                }).then(() => validate(grib2Mem, 1, [165, 10.125, 195, -19.875], {x: 3, y: 3}))
             );
         });
     });
