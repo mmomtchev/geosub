@@ -171,8 +171,7 @@ module.exports = async function retrieve(opts) {
     }
     vrtXML += '\n</VRTDataset>\n';
     verbose(vrtXML);
-    gdal.vsimem.set(Buffer.from(vrtXML), '/vsimem/remote.vrt');
-    const temp = await gdal.openAsync('/vsimem/remote.vrt');
+    const temp = await gdal.openAsync(Buffer.from(vrtXML));
 
     // Retrieve and copy data
     verbose(
@@ -189,7 +188,6 @@ module.exports = async function retrieve(opts) {
     verbose(`wrote ${opts.filename}`);
 
     temp.close();
-    gdal.vsimem.release('/vsimem/remote.vrt');
     source.close();
     response.close();
 };
