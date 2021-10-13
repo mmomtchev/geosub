@@ -181,9 +181,9 @@ module.exports = async function retrieve(opts) {
     );
 
     // Write output
-    const response = await source.driver.createCopyAsync(opts.filename, temp, {}, false, (complete, msg) => {
+    const response = await source.driver.createCopyAsync(opts.filename, temp, {}, (complete, msg) => {
         verbose(`${Math.round(complete * 100)}% ${msg ? msg : ''}`)
-    }, undefined);
+    }, false);
     await response.flushAsync();
     verbose(`wrote ${opts.filename}`);
 
