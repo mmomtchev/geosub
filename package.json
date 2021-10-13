@@ -1,6 +1,6 @@
 {
   "name": "geosub",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "description": "Tool for partial downloading of geospatial datasets",
   "main": "index.js",
   "scripts": {
