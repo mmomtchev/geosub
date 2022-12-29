@@ -50,7 +50,7 @@
     "eslint-plugin-mocha": "^9.0.0",
     "eslint-plugin-prefer-arrow": "^1.2.3",
     "mocha": "^10.1.0",
-    "prettier": "^2.8.0",
+    "prettier": "^2.8.1",
     "yatag": "^1.2.0"
   }
 }
