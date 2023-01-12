@@ -38,7 +38,7 @@
   "homepage": "https://github.com/mmomtchev/aws-geo-sub#readme",
   "dependencies": {
     "commander": "^8.3.0",
-    "gdal-async": ">=3.5.2"
+    "gdal-async": ">=3.6.1"
   },
   "devDependencies": {
     "c8": "^7.12.0",
