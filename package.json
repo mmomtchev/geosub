@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mmomtchev/aws-geo-sub.git"
+    "url": "git+https://github.com/mmomtchev/geosub.git"
   },
   "bin": {
     "geosub": "./cli.js"
@@ -33,9 +33,9 @@
   "author": "Momtchil Momtchev <momtchil@momtchev.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/mmomtchev/aws-geo-sub/issues"
+    "url": "https://github.com/mmomtchev/geosub/issues"
   },
-  "homepage": "https://github.com/mmomtchev/aws-geo-sub#readme",
+  "homepage": "https://github.com/mmomtchev/geosub#readme",
   "dependencies": {
     "commander": "^8.3.0",
     "gdal-async": "^3.8.1"
