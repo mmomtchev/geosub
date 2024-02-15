@@ -45,7 +45,7 @@
     "chai": "^4.3.8",
     "chai-as-promised": "^7.1.1",
     "codecov": "^3.8.3",
-    "eslint": "^7.32.0",
+    "eslint": "^8.56.0",
     "eslint-plugin-array-func": "^3.1.8",
     "eslint-plugin-mocha": "^10.2.0",
     "eslint-plugin-prefer-arrow": "^1.2.3",
