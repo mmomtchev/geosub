@@ -49,7 +49,7 @@
     "eslint-plugin-array-func": "^5.0.1",
     "eslint-plugin-mocha": "^10.2.0",
     "eslint-plugin-prefer-arrow": "^1.2.3",
-    "mocha": "^10.2.0",
+    "mocha": "^11.0.1",
     "prettier": "^3.2.5",
     "yatag": "^1.2.0"
   },
