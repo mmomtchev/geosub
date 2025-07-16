@@ -37,7 +37,7 @@
   },
   "homepage": "https://github.com/mmomtchev/geosub#readme",
   "dependencies": {
-    "commander": "^12.0.0",
+    "commander": "^14.0.0",
     "gdal-async": "^3.8.1"
   },
   "devDependencies": {
