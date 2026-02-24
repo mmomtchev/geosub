@@ -48,6 +48,6 @@ describe('geosub CLI', () => {
         fs.unlinkSync(grib2Temp);
     });
     it('should exit with an error when there is one', () => {
-        assert.throws(() => execSync(`node cli.js -q`));
+        assert.throws(() => execSync('node cli.js -q'));
     });
 });
