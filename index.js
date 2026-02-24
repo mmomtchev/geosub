@@ -2,7 +2,7 @@ const gdal = require('gdal-async');
 const WGS84 = gdal.SpatialReference.fromEPSG(4326);
 
 function lon360to180(lon) {
-    return (((lon + 180) % 360) + 360) % 360 - 180;
+    return ((((lon + 180) % 360) + 360) % 360) - 180;
 }
 
 function matchSelector(selector, band) {
@@ -23,7 +23,7 @@ function matchSelector(selector, band) {
 
         return true;
     } catch (e) {
-        throw new Error(`Malformed selector: ${selector} : ${e}`);
+        throw new Error(`Malformed selector: ${selector} : ${e}`, {cause: e});
     }
 }
 
@@ -109,9 +109,11 @@ module.exports = async function retrieve(opts) {
             if (ul.x < 0) ul.x += size.x;
             if (lr.x < 0) lr.x += size.x;
         } catch (e) {
-            throw new Error('No valid georeferencing found, '+ 
-                'if you are retrieving a NetCDF file, ' +
-                'you must specify the URL of a subdataset, not the master dataset'
+            throw new Error(
+                'No valid georeferencing found, ' +
+                    'if you are retrieving a NetCDF file, ' +
+                    'you must specify the URL of a subdataset, not the master dataset',
+                {cause: e}
             );
         }
         ul.x = Math.floor(ul.x);
@@ -152,22 +154,30 @@ module.exports = async function retrieve(opts) {
 
     for (const i in bands) {
         const band = bands[i];
-        vrtXML += `\n\t<VRTRasterBand dataType="${band.dataType}" band="${+i+1}">\n`;
+        vrtXML += `\n\t<VRTRasterBand dataType="${band.dataType}" band="${+i + 1}">\n`;
         const md = await band.getMetadataAsync();
         if (Object.keys(md).length) vrtXML += '\t\t' + metaData2XML(md) + '\n';
 
-        vrtXML += await band2XML(opts.url, +i+1, band,
+        vrtXML += await band2XML(
+            opts.url,
+            +i + 1,
+            band,
             ul,
-            {x: 0, y: 0}, 
-            Math.min(size.x - ul.x, width), height
+            {x: 0, y: 0},
+            Math.min(size.x - ul.x, width),
+            height
         );
         if (ul.x + width > size.x)
-            vrtXML += await band2XML(opts.url, +i+1, band,
+            vrtXML += await band2XML(
+                opts.url,
+                +i + 1,
+                band,
                 {x: 0, y: ul.y},
-                {x: ul.x + width - size.x, y: 0}, 
-                width - (size.x - ul.x), height
+                {x: ul.x + width - size.x, y: 0},
+                width - (size.x - ul.x),
+                height
             );
-        vrtXML += `\t</VRTRasterBand>\n`;
+        vrtXML += '\t</VRTRasterBand>\n';
     }
     vrtXML += '\n</VRTDataset>\n';
     verbose(vrtXML);
@@ -181,9 +191,11 @@ module.exports = async function retrieve(opts) {
     );
 
     // Write output
-    const response = await source.driver.createCopyAsync(opts.filename, temp, {}, false, { progress_cb: (complete, msg) => {
-        verbose(`${Math.round(complete * 100)}% ${msg ? msg : ''}`)
-    }});
+    const response = await source.driver.createCopyAsync(opts.filename, temp, {}, false, {
+        progress_cb: (complete, msg) => {
+            verbose(`${Math.round(complete * 100)}% ${msg ? msg : ''}`);
+        }
+    });
     await response.flushAsync();
     verbose(`wrote ${opts.filename}`);
 
