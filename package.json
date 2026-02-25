@@ -43,7 +43,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.4",
     "@eslint/js": "^10.0.1",
-    "c8": "^10.0.0",
+    "c8": "^11.0.0",
     "chai": "^4.3.8",
     "chai-as-promised": "^7.1.1",
     "codecov": "^3.8.3",
